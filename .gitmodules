@@ -1,0 +1,12 @@
+[submodule "current/culmus"]
+	path = current/culmus
+	url = ssh+git://aur@aur4.archlinux.org:22/culmus.git/
+[submodule "current/mingw-w64-libdxfrw"]
+	path = current/mingw-w64-libdxfrw
+	url = ssh+git://aur@aur4.archlinux.org:22/mingw-w64-libdxfrw.git/
+[submodule "current/mingw-w64-wxmsw"]
+	path = current/mingw-w64-wxmsw
+	url = ssh+git://aur@aur4.archlinux.org:22/mingw-w64-wxmsw.git/
+[submodule "current/unix-runescape-client"]
+	path = current/unix-runescape-client
+	url = ssh+git://aur@aur4.archlinux.org:22/unix-runescape-client.git/
