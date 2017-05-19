@@ -3,32 +3,21 @@
 
 pkgname=mingw-w64-wxmsw
 epoch=1
-pkgver=3.0.2
-pkgrel=3
+pkgver=3.0.3
+pkgrel=1
 pkgdesc="Win32 implementation of wxWidgets API for GUI (mingw-w64)"
 arch=(any)
-url="http://wxwidgets.org"
+url="https://wxwidgets.org"
 license=("custom:wxWindows")
 makedepends=(mingw-w64-configure)
-depends=(mingw-w64-crt mingw-w64-libpng mingw-w64-libjpeg-turbo mingw-w64-libtiff)
+depends=(mingw-w64-crt mingw-w64-expat mingw-w64-libpng mingw-w64-libjpeg-turbo mingw-w64-libtiff)
 options=(staticlibs !strip !buildflags)
 conflicts=(mingw-w64-wxmsw2.9 mingw-w64-wxmsw-static)
 provides=(mingw-w64-wxmsw2.9 mingw-w64-wxmsw-static)
-source=(
-  "http://downloads.sourceforge.net/wxwindows/wxWidgets-${pkgver}.tar.bz2"
-  'PR222.patch' # https://github.com/wxWidgets/wxWidgets/pull/222
-)
-sha1sums=('6461eab4428c0a8b9e41781b8787510484dea800'
-          '118ca9fb5c299a118e0c87a0cc18a98e5030077b')
+source=("https://github.com/wxWidgets/wxWidgets/releases/download/v${pkgver}/wxWidgets-${pkgver}.tar.bz2")
+sha256sums=('08c8033f48ec1b23520f036cde37b5ae925a6a65f137ded665633ca159b9307b')
 
 _architectures="i686-w64-mingw32 x86_64-w64-mingw32"
-
-prepare() {
-  cd "${srcdir}/wxWidgets-${pkgver}/"
-
-  # fix errors with GCC 6
-  patch -p1 -i "${srcdir}/PR222.patch"
-}
 
 build() {
   local _build_flags="\
@@ -45,7 +34,11 @@ build() {
     	--with-libxpm=builtin \
     	--with-libjpeg=sys \
     	--with-libtiff=sys"
-  
+
+  # Fix for current libuuid.a issues
+  # see: https://github.com/Alexpux/MINGW-packages/issues/1761
+  _build_flags="${_build_flags} LDFLAGS=-Wl,--allow-multiple-definition"
+
   cd "${srcdir}/wxWidgets-${pkgver}"
   for _arch in ${_architectures}; do
     # shared build
@@ -76,7 +69,7 @@ package() {
 
     ln -s "/usr/${_arch}/lib/wx/config/${_arch}-msw-unicode-${pkgver%.*}" \
        "$pkgdir/usr/bin/${_arch}-wx-config"
-    
+
     # rm "${pkgdir}/usr/${_arch}/bin/"*.exe
     # rm "$pkgdir/usr/${_arch}/bin/wxrc-3.0"
     # rm -r "$pkgdir/usr/${_arch}/share"
