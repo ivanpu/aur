@@ -1,0 +1,11 @@
+diff -ura wxWidgets-3.1.1/build/cmake/functions.cmake wxWidgets-3.1.1.new/build/cmake/functions.cmake
+--- wxWidgets-3.1.1/build/cmake/functions.cmake	2018-02-18 22:30:31.000000000 +0200
++++ wxWidgets-3.1.1.new/build/cmake/functions.cmake	2018-03-05 12:11:25.295859452 +0200
+@@ -90,6 +90,7 @@
+         LIBRARY_OUTPUT_DIRECTORY "${wxOUTPUT_DIR}${wxPLATFORM_LIB_DIR}"
+         ARCHIVE_OUTPUT_DIRECTORY "${wxOUTPUT_DIR}${wxPLATFORM_LIB_DIR}"
+         RUNTIME_OUTPUT_DIRECTORY "${wxOUTPUT_DIR}${wxPLATFORM_LIB_DIR}"
++        LINKER_LANGUAGE "CXX"
+         )
+ endfunction()
+ 
