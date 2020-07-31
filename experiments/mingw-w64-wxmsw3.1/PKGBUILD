@@ -3,8 +3,9 @@
 
 pkgname=mingw-w64-wxmsw3.1
 epoch=1
-pkgver=3.1.1
-pkgrel=1
+pkgver=3.1.4
+_shortver=3.1
+pkgrel=2
 pkgdesc="Win32 implementation of wxWidgets API for GUI (development branch, mingw-w64)"
 arch=(any)
 url="http://wxwidgets.org"
@@ -12,20 +13,14 @@ license=("custom:wxWindows")
 makedepends=(mingw-w64-cmake)
 depends=(mingw-w64-crt mingw-w64-expat mingw-w64-libpng mingw-w64-libjpeg-turbo mingw-w64-libtiff)
 options=(staticlibs !strip !buildflags)
-source=("https://github.com/wxWidgets/wxWidgets/releases/download/v${pkgver}/wxWidgets-${pkgver}.tar.bz2"
-        "fix-linker.patch")
-sha256sums=('c925dfe17e8f8b09eb7ea9bfdcfcc13696a3e14e92750effd839f5e10726159e'
-            'fdd5e555e21cffe8d341a50086399f18d640b42e8e126a56fb98c966ffd4c05e')
+source=("https://github.com/wxWidgets/wxWidgets/releases/download/v${pkgver}/wxWidgets-${pkgver}.tar.bz2")
+sha1sums=('f8c77e6336b5f6414b07e27baa489fb8abc620c4')
 
 _architectures="i686-w64-mingw32 x86_64-w64-mingw32"
 
-prepare() {
-  cd "${srcdir}/wxWidgets-${pkgver}"
-  patch -Np1 -i "${srcdir}/fix-linker.patch"
-}
-
 build() {
   local _build_flags="\
+        -DCMAKE_BUILD_TYPE=Release \
         -DwxBUILD_PRECOMP=OFF \
         -DwxUSE_OPENGL=ON \
         -DwxUSE_UNICODE=ON \
@@ -38,7 +33,8 @@ build() {
         -DwxUSE_EXPAT=sys \
         -DwxUSE_LIBJPEG=sys \
         -DwxUSE_LIBTIFF=sys \
-        -DwxUSE_ZLIB=sys"
+        -DwxUSE_ZLIB=sys \
+        -DwxUSE_LIBLZMA=ON"
 
   # Fix for current libuuid.a issues
   # see: https://github.com/Alexpux/MINGW-packages/issues/1761
@@ -49,11 +45,8 @@ build() {
   for _arch in ${_architectures}; do
     # shared build
     mkdir -p build-shared-${_arch} && pushd build-shared-${_arch}
-    # can't build monolithic - some dependencies are not applied?
-    # ${_arch}-cmake ${_build_flags} -DwxBUILD_MONOLITHIC=ON ..
-    # but compilation still errs here:
-    ${_arch}-cmake ${_build_flags} ..
-    make #VERBOSE=1
+    ${_arch}-cmake ${_build_flags} -DwxBUILD_MONOLITHIC=ON ..
+    make
     popd
 
     # static build
@@ -77,11 +70,11 @@ package() {
     find "${pkgdir}/usr/${_arch}" -name '*.dll' | xargs -rtl1 ${_arch}-strip --strip-unneeded
     find "${pkgdir}/usr/${_arch}" -name '*.a' -o -name '*.dll' | xargs -rtl1 ${_arch}-strip -g
 
-    ln -s "/usr/${_arch}/lib/wx/config/${_arch}-msw-unicode-${pkgver%.*}" "${pkgdir}/usr/bin/${_arch}-wx-config-3.1"
+    #ln -s "/usr/${_arch}/lib/wx/config/${_arch}-msw-unicode-${_shortver}" "${pkgdir}/usr/bin/${_arch}-wx-config-${_shortver}"
 
-    # conflicts with stable package
-    mv "${pkgdir}/usr/${_arch}/bin/wx-config"{,-3.1}
-    rm -r "${pkgdir}/usr/${_arch}/share"
+    # conflicts with stable package - but is not created with CMake
+    #mv "${pkgdir}/usr/${_arch}/bin/wx-config"{,-${_shortver}}
+    #rm -r "${pkgdir}/usr/${_arch}/share"
 
     # rm "${pkgdir}/usr/${_arch}/bin/wxrc-3.1"
   done
